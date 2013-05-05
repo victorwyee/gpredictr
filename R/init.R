@@ -29,24 +29,24 @@ PredictionApiTrain <- function(unique.identifier,
 }
 
 summary.PredictionApiModel <- function(object, ...) {
-  # Output a summary report for model of type: 'predictionapiModel'.
-  # The report includes:
-  #   1. Location of data in Google Storage
-  #   2. Estimated accuracy from Google Prediction API
-  # It's a generic function so that user can use summary(model) to call it
-  #
-  # Args:
-  #   object: model with class type: PredictionApiModel
-  # Returns:
-  #   print a report including:
-  #     1. Location of data
-  #     2. Estimated accuracy
-
-  report <- paste("Location of data: ", object$bucket.name, "/",
-                  object$object.name, "\n",
-                  "Estimated accuracy: ",
-                  object$accuracy, "\n", sep='')
-  cat(report)
+  # Output a summary report for model of type: 'PredictionApiModel'.
+  
+  cat("Unique Identifer:     ", object$unique.identifier, "\n", sep = "")
+  cat("Remote File Location: ", "gs://", object$bucket.name, "/", object$object.name, "\n", sep = "")
+  
+  check.result <- CheckTrain(unique.identifier = object$unique.identifier,
+                             verbose = FALSE)
+  cat("Current Status:       ", check.result$training.status, "\n", sep = "")
+  if (check.result$training.status == "DONE") {
+    cat("Job Info --------------------------------------------", "\n", sep = "")
+    cat("Created:              ", check.result$created, "\n", sep = "")
+    cat("Training Completed:   ", check.result$trainingComplete, "\n", sep = "")
+    cat("Number of Instances:  ", check.result$numberInstances, "\n", sep = "")
+    cat("Model Type:           ", check.result$modelType, "\n", sep = "")
+    cat("Number of Labels:     ", check.result$numberLabels, "\n", sep = "")
+    cat("Accuracy:             ", check.result$accuracy, "\n", sep = "")
+    cat("----------------------------------------------------")
+  }
 }
 
 predict.PredictionApiModel <- function(object,
