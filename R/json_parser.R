@@ -1,7 +1,7 @@
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: markko@google.com (Markko Ko)
 
-PredictionApiJsonToData <- function(data, verbose = FALSE) {
+JsonToData <- function(data, verbose = FALSE) {
   # This function translates json format data string into R object
   #
   # Args:
@@ -9,23 +9,23 @@ PredictionApiJsonToData <- function(data, verbose = FALSE) {
   #   verbose: If TRUE, prints all detail for debugging. Default is FALSE.
   # Returns:
   #   R object
-
+  
   if (verbose)
     cat(paste("from Json:", data), "\n")
-
+  
   if (is.null(data))
     return(NULL)
-
+  
   # parse to R object
   result <- fromJSON(data)
-
+  
   if (verbose)
     cat(paste("to Data:", result), "\n")
-    
+  
   return(result)
 }
 
-PredictionApiDataToJson <- function(data, verbose = FALSE) {
+DataToJson <- function(data, verbose = FALSE) {
   # This function translates R object into json format data string
   #
   # Args:
@@ -33,19 +33,18 @@ PredictionApiDataToJson <- function(data, verbose = FALSE) {
   #   verbose: If TRUE, prints all detail for debugging. Default is FALSE.
   # Returns:
   #   json format string
-
+  
   if (verbose)
     cat(paste("from Data:", data))
-
+  
   if (is.null(data))
     return(NULL)
-
+  
   # parse the data
   result <- toJSON(data)
-
+  
   if (verbose)
     cat(paste("to Json:", result))
-    
+  
   return(result)
 }
-
