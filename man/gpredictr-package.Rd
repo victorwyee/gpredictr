@@ -3,38 +3,34 @@
 \alias{gpredictr}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+R Wrapper for Google Prediction API
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+Provides an R interface to the Google Prediction API v0.15. Includes connection
+handlers for insert (formerly "train"), get ("check"), predict, list, and auth.
+Includes a result handler for returned JSON objects.
 }
 \details{
-\tabular{ll}{
-Package: \tab gpredictr\cr
-Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2013-05-04\cr
-License: \tab What license is it under?\cr
-}
-~~ An overview of how to use the package, including the most important functions ~~
+  \tabular{ll}{
+  Package: \tab gpredictr\cr
+  Type: \tab Package\cr
+  Version: \tab 1.0\cr
+  Date: \tab 2013-05-04\cr
+  License: \tab Apache 2.0\cr
+  }
 }
 \author{
-Who wrote it
+Authors:  Cheng-Neng (Markko) Ko, Maciej Janiec, Victor W. Yee
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Maintainer: Victor W. Yee <w.victoryee@gmail.com>
+
+gpredictr is forked from the googlepredictionapi library by Maciej Janiec
+(http://code.google.com/p/r-google-prediction-api-v12/,
+which is itself a fork from the googlepredictionapi library by Markko Ko
+<markko@google.com> at https://code.google.com/p/google-prediction-api-r-client/.
 }
 \references{
-~~ Literature or other references for background information ~~
-}
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
-\keyword{ package }
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
-~~ simple examples of the most important functions ~~
+  \enumerate{
+   \item https://developers.google.com/prediction/docs/reference/v1.5/
+  }
 }
