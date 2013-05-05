@@ -1,24 +1,7 @@
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: markko@google.com (Markko Ko)
-
-# set the interval time (sec) to check if upload is finished
-#
-# ---
-#
-# modified for Google API v1.2 and extended by Maciej Janiec (mjaniec@gmail.com), 2011-05-30
-
-kWaitTime <- 5
-
-# adds "PredictionApiModel" class to a result
-# used in PredictionApiTrainRunner
-# may also be used with PredictionApiCheckTrain or PredictionApiCheckTrainingStatus
-WrapModel <- function(result) {
-
-	class(result) <- "PredictionApiModel"
-	
-	return(result)
-
-}
+# Modified for Google API v1.2 and extended by Maciej Janiec (mjaniec@gmail.com), 2011-05-30
+# Modified by w.victoryee@gmail.com (Victor Yee), 2013-05-04
 
 PredictionApiTrainRunner <- function(data.type,
                                      data,
