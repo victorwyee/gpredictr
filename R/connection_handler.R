@@ -7,7 +7,7 @@ ConnectionHandler <- function(connect.type,
                               data.tosend,
                               verbose = FALSE,
                               max.retries = 1) {
-
+  
   # Get auth
   if (connect.type != "auth")
     auth <- GetAuthToken(verbose = verbose)
@@ -47,7 +47,7 @@ ConnectionHandler <- function(connect.type,
     header.field <- c('Content-Type'  = "application/x-www-form-urlencoded",
                       'User-Agent'    = user.agent.string)
   }
-
+  
   # Set request to API
   curl <- getCurlHandle()
   curlSetOpt(.opts = list(httpheader = header.field,

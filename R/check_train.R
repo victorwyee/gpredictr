@@ -2,6 +2,7 @@
 # Author: markko@google.com (Markko Ko)
 # Modified by w.victoryee@gmail.com (Victor Yee), 2013-05-04
 
+CheckTrain <- function(unique.identifier,
                        verbose = FALSE) {
   # Checks the training status of an object in Google Storage if it's completed
   

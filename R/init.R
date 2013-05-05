@@ -21,10 +21,10 @@ PredictionApiTrain <- function(unique.identifier,
   
   # Passed to TrainRunner @ prediction_api.TrainRunner.R
   result <- TrainRunner(unique.identifier = unique.identifier,
-                        remote.file       = remote.file,
-                        verbose           = verbose,
-                        check.until.done  = check.until.done,
-                        check.interval    = check.interval)
+                        remote.file      = remote.file,
+                        verbose          = verbose,
+                        check.until.done = check.until.done,
+                        check.interval   = check.interval)
   return(result)
 }
 
