@@ -48,71 +48,70 @@ ConnectionHandler <- function(connect.type,
                       'User-Agent'    = user.agent.string)
   }
 
-  # send query to API
-  # set options
+  # Set request to API
   curl <- getCurlHandle()
-  curlSetOpt(.opts = list(httpheader = header.field, verbose = verbose),
+  curlSetOpt(.opts = list(httpheader = header.field,
+                          verbose = verbose),
              curl = curl)
-
-  # set callback object
+  
+  # Set callback object
   t <- basicTextGatherer()
   d <- debugGatherer()
   h <- basicHeaderGatherer()
-
-  # connect to API, if fails, try retry.number.of.times times
   
+  # Connect to API
   if (verbose) {
-  	cat("Request to be send:\n")
-  	cat("TYPE=",connect.type,"\n")
-  	cat("URL=",url,"\n")
-  	cat("POST=",data.tosend,"\n")
-  	cat("HEAD=",header.field,"\n")  
-  }	
+    cat("Request to be send:\n")
+    cat("TYPE=", connect.type, "\n")
+    cat("URL=" , url         , "\n")
+    cat("POST=", data.tosend , "\n")
+    cat("HEAD=", header.field, "\n")    
+  }
   
   retry <- 0
-  while (retry < retry.number.of.times) {
-  		if (verbose)
-  			cat("Connection attempt no.:",(retry+1),"\n")
-  
+  while (retry < max.retries) {
+    if (verbose)
+      cat("Connection attempt no.:", (retry + 1), "\n")
+    
     # Perform query
-    if (connect.type == "check") {
+    if (is.element(connect.type, c("get", "list"))) {
       curlSetOpt(.opts = list(httpget = 1), curl = curl)
-      body = curlPerform(url = url,
-                         curl = curl,
-                         writefunction = t$update,
-                         headerfunction = h$update)
+      body <- curlPerform(url            = url,
+                          curl           = curl,
+                          writefunction  = t$update,
+                          headerfunction = h$update)
     } else {
-      body = curlPerform(url = url,
-                         curl = curl,
-                         postfields = data.tosend,
-                         writefunction = t$update,
-                         headerfunction = h$update)
+      body <- curlPerform(url            = url,
+                          curl           = curl,
+                          postfields     = data.tosend,
+                          writefunction  = t$update,
+                          headerfunction = h$update)
     }
     
     if (verbose) {
       cat("Returned values:\n")
-    	cat("T=",t$value())
-      cat("H=",h$value())
-      cat("D=",d$value())
-      }
-
-    # prepare output
+      cat("T=", t$value())
+      cat("H=", h$value())
+      cat("D=", d$value())  
+    }
+    
+    # Prepare output
     output <- list(succeed.connect = TRUE,
-                   data = t$value(),
-                   status = h$value()[['status']],
-                   status.message = h$value()[['statusMessage']])
-    # check http status
+                   data            = t$value(),
+                   status          = h$value()[['status']],
+                   status.message  = h$value()[['statusMessage']])
+    
+    # Check http status
     httpstatus <- as.numeric(output$status)
-    if (httpstatus != 200)
-      output$succeed.connect <- FALSE
-    if (output$succeed.connect)
-      break
-
+    if (httpstatus != 200) { output$succeed.connect <- FALSE }
+    if (output$succeed.connect) { break }
+    
+    retry.sleep.time.in.seconds <- 0.5
     Sys.sleep(retry.sleep.time.in.seconds)
     retry <- retry + 1
     warning("Connection error: status:", output$status,
-            ", status message:", output$status.message,"\n")           
+            ", status message:", output$status.message,"\n")  
   }
-     
+  
   return(output)
 }
