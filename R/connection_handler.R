@@ -1,78 +1,51 @@
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: markko@google.com (Markko Ko)
+# Modified by w.victoryee@gmail.com (Victor Yee), 2013-05-04
 
-PredictionApiConnectHandler <- function(connect.type,
-                                        bucket.name,
-                                        object.name,
-                                        data.tosend,
-                                        verbose = FALSE,
-                                        retry = FALSE) {
-  # Handles the connection to Google Prediction API and return the result
-  # with status information. This function supports four connection types:
-  # "train", "predict", "check", "auth"
-  # Args:
-  #   connect.type: "train", "predict", "check", "auth"
-  #   bucket.name: the name of bucket in Google Storage to be processed
-  #   object.name: the name of object in Google Storage to be processed
-  #   data.tosend: the data you want to send to Prediction API
-  #   verbose: If TRUE, prints all detail for debugging. Default is FALSE.
-  # Returns:
-  #   the json format result string from Prediction API
+ConnectionHandler <- function(connect.type,
+                              unique.identifier,
+                              data.tosend,
+                              verbose = FALSE,
+                              max.retries = 1) {
 
-  # get auth
+  # Get auth
   if (connect.type != "auth")
-    auth <- PredictionApiUtilGetAuth(verbose = verbose) # @ prediction_api_get_auth_token.R
-
-  # when connection fails, the number of times to retry
-  retry.number.of.times <- ifelse(retry==TRUE,3,1)
-  # when connection fails, how long to wait to retry (second)
-  retry.sleep.time.in.seconds <- 0.5
-  # check input
-  connect.type.all = c("train", "predict", "check", "auth")
+    auth <- GetAuthToken(verbose = verbose)
+  
+  # Check input
+  connect.type.all = c("insert", "get", "predict", "list", "auth")
   if (!is.element(connect.type, connect.type.all))
-    stop("Connect.type must be either train, predict, auth or check")
-  if (missing(data.tosend))
+    stop("Connect.type must be either insert, get, list, predict, or auth")
+  if (is.element(connect.type, c("insert", "predict")) && missing(data.tosend))
     stop("Must have 'data.tosend'")
-
-  if (connect.type == "train") {
-    # prepare url for connection
-    url <- paste("https://www.googleapis.com/prediction/v1.2/training?key=",myAPIkey,sep="")
-
-    # set the header
-    header.field <-
-      c('Authorization' = paste("GoogleLogin auth=", auth, sep=''),
-        'User-Agent' = paste('R client library for the Google Prediction API',
-          'v', kVersion, sep=''),
-          'Content-Type' = "application/json")
-
+  
+  # Set common query parameters
+  prediction.api.url <- "https://www.googleapis.com/prediction/v1.5/trainedmodels"
+  user.agent.string  <- "R client library for the Google Prediction APIv0.15"
+  header.field.get   <- c('Authorization' = paste0("GoogleLogin auth=", auth),
+                          'User-Agent'    = user.agent.string)
+  header.field.json  <- c('Authorization' = paste0("GoogleLogin auth=", auth),
+                          'User-Agent'    = user.agent.string,
+                          'Content-Type' = "application/json")
+  
+  # Construct API query
+  if (connect.type == "insert") {
+    url          <- paste0(prediction.api.url, "?key=", my.api.key)
+    header.field <- header.field.json
+  } else if (connect.type == "get") {
+    url          <- paste0(prediction.api.url, "/", unique.identifier,"?key=", my.api.key)
+    header.field <- header.field.get
   } else if (connect.type == "predict") {
-    url <- paste("https://www.googleapis.com/prediction/v1.2/training/",
-                 bucket.name, "%2F", HexSlash(object.name), "/predict?key=",myAPIkey, sep='')
-
-    # set the header
-    header.field <-
-      c('Authorization' = paste("GoogleLogin auth=", auth, sep=''),
-        'User-Agent' = paste('R client library for the Google Prediction API',
-          'v', kVersion, sep=''),
-        'Content-Type' = "application/json")
-
-  } else if (connect.type == "check") {
-    # prepare url
-    url <- paste("https://www.googleapis.com/prediction/v1.2/training/",
-                 bucket.name, "%2F", HexSlash(object.name),"?key=",myAPIkey, sep='')
-    header.field <-
-      c('Authorization' = paste("GoogleLogin auth=", auth, sep=''),
-        'User-Agent' = paste('R client library for the Google Prediction API',
-          'v', kVersion, sep=''))
-
+    url          <- paste0(prediction.api.url, "/", unique.identifier,"/predict?key=", my.api.key)
+    header.field <- header.field.json
+  } else if (connect.type == "list") {
+    url          <- paste0(prediction.api.url, "/list?key=", my.api.key)
+    user.agent   <- user.agent.string
+    header.field <- header.field.get
   } else if (connect.type == "auth") {
-    # prepare url
-    url <- "https://www.google.com/accounts/ClientLogin"
-    header.field <-
-      c('Content-Type' = "application/x-www-form-urlencoded",
-        'User-Agent' = paste('R client library for the Google Prediction API',
-          'v', kVersion, sep=''))
-
+    url          <- "https://www.google.com/accounts/ClientLogin"
+    header.field <- c('Content-Type'  = "application/x-www-form-urlencoded",
+                      'User-Agent'    = user.agent.string)
   }
 
   # send query to API
