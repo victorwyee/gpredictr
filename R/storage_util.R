@@ -1,18 +1,10 @@
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: markko@google.com (Markko Ko)
-#
-# ---
-#
-# modified for Google API v1.2 and extended by Maciej Janiec (mjaniec@gmail.com), 2011-05-30
+# Modified for Google API v1.2 and extended by Maciej Janiec (mjaniec@gmail.com), 2011-05-30
+# Modified by w.victoryee@gmail.com (Victor Yee), 2013-05-04
 
 myPython 			<- ""
 myGSUtilPath 	<- ""
-
-PythonCommand <- function(command) {
-
-	return(paste(myPython," ",myGSUtilPath,command,sep=""))
-
-}
 
 PredictionApiUtilGsutil <- function(command, verbose = FALSE,
                                     run.in.background = FALSE) {

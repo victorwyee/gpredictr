@@ -20,3 +20,8 @@ WrapModel <- function(result) {
 HexSlash <- function(object) {
   gsub("/", "%2F", object)
 }
+
+# Used for storage utilities in storage_util.R
+PythonCommand <- function(command) {
+  return(paste(myPython, " ", myGSUtilPath, command, sep = ""))
+}
