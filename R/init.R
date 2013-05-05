@@ -13,7 +13,7 @@ PredictionApiTrain <- function(unique.identifier,
   # Check if remote file name is well-formed
   if (missing(remote.file) || !is.character(remote.file))
     stop("'remote.file' should be character")
-  check.result <- train.parse.remote.filename(remote.file)
+  check.result <- TrainParseRemoteFilename(remote.file)
   if (!check.result$well.formed) {
     stop("remote.file format error: should be string with format: ",
          "\"bucket.name/object.name\" or \"gs://bucket.name/object.name\"\n")
