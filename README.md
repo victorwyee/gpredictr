@@ -17,7 +17,7 @@ PredictionApiTrain) are not currently available.
  3. That you upload your training dataset to your Google Cloud Storage account
 
 ## Usage
-```{r}
+```{s}
 ### Load libraries -------------------------------------------------------------
 library(rjson)
 library(RCurl)
@@ -34,10 +34,6 @@ options(RCurlOptions = list(capath = system.file("CurlSSL", "cacert.pem", packag
 my.email <- "example@example.com"
 my.password <- "averystrongpassword"
 my.api.key <- "googleapikey"
-
-### Put path to python.exe on your computer and path do gsutil directory
-my.python <- "C:/cygwin/bin/python2.7.exe"
-my.gsutil.path <- ""
 
 ### High-level functions -------------------------------------------------------
 
