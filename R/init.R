@@ -113,28 +113,3 @@ PredictionApiListModels <- function(verbose = FALSE) {
   result <- ResultHandler(result.conn, mode = "list")
   return(result)
 }
-
-PredictionApiRemoveObjects <- function(bucket.name,
-                                       object.name,
-                                       verbose = FALSE) {
-  # Removes the given object in Google Storage
-  #
-  # Args:
-  #   bucket.name: the bucket.name of data location in Google Storage
-  #   object.name: the object.name of data location in Google Storage
-  #   verbose: If TRUE, print out all detail for debugging. Default is FALSE.
-  # Returns:
-  #   if succeed: a list of information including
-  #     1. result: "correct"
-  #     2. value: message from Google Storage
-  #   else: a list of error message including:
-  #     1. result: "error"
-  #     2. status: status code from Google Storage API
-  #     3. code: error code from Google Storage API
-  #     4. reason: reason message from Google Storage API
-
-  result <- PredictionApiUtilRm(bucket.name = bucket.name,
-                                object.name = object.name,
-                                verbose = verbose)
-  return(result)
-}
