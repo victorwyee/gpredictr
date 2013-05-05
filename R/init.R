@@ -107,35 +107,10 @@ PredictionApiCheckTrainingStatus <- function(unique.identifier,
   return(result)
 }
 
-PredictionApiListObjects <- function(bucket.name = "",
-                                     object.name = "",
-                                     verbose = FALSE) {
-  # Lists all buckets if object.name is not provided
-  # or list all objects if bucket.name is provided.
-  # example:
-  #    PredictionApiListObjects("bucket.name") # this will return
-  #                                            # a list of objects you have
-  #    PredictionApiListObjects() # this will return a list of buckets you have
-  # Args:
-  #   bucket.name: the bucket.name of data location in Google Storage
-  #   object.name: the object.name of data location in Google Storage
-  #   verbose: If TRUE, print out all detail for debugging. Default is FALSE.
-  # Returns:
-  #   if succeed: a list of information including
-  #     1. result: "correct"
-  #     2. value: message from Google Storage:
-  #       a list of your bucket(not specify bucket.name),
-  #       a list of your object(specify bucket.name but not object.name)
-  #       object name you specified(both bucket.name and object.name)
-  #   else: a list of error message including:
-  #     1. result: "error"
-  #     2. status: status code from Google Storage API
-  #     3. code: error code from Google Storage API
-  #     4. reason: reason message from Google Storage API
-
-  result <- PredictionApiUtilLs(bucket.name = bucket.name, # @ prediction_api_storage_util.R
-                                object.name = object.name,
-                                verbose = verbose)
+PredictionApiListModels <- function(verbose = FALSE) {
+  result.conn <- ConnectionHandler(connect.type = "list",
+                                   verbose     = verbose)
+  result <- ResultHandler(result.conn, mode = "list")
   return(result)
 }
 
