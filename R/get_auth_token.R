@@ -1,7 +1,7 @@
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: markko@google.com (Markko Ko)
 
-PredictionApiUtilGetAuth <- function(verbose = FALSE) {
+GetAuthToken <- function(verbose = FALSE) {
   # Returns authentication string based on:
   #   1. ~/.auth-token file
   #   2. retrieving authentication from ClientLogin and save to
@@ -11,8 +11,8 @@ PredictionApiUtilGetAuth <- function(verbose = FALSE) {
   #   verbose: If TRUE, print out all detail for debugging. Default is FALSE.
   # Returns:
   #   auth: string of auth-token
-
-  # get auth from file
+  
+  # Get auth from file
   file.auth <- "~/.auth-token"
   if (file.exists(file.auth)) {
     auth <- scan(file = file.auth, what = "character", quiet = TRUE)
@@ -22,10 +22,10 @@ PredictionApiUtilGetAuth <- function(verbose = FALSE) {
   
   # get auth by making a request to Google ClientLogin
   cat("Requesting Authentication from Google ClientLogin for user: ",
-      myEmail, "\n", sep='')
-  result.auth <- PredictionApiUtilRequestAuth(email     = myEmail,
-                                              password  = myPassword,
-                                              verbose   = verbose)
+      my.email, "\n", sep='')
+  result.auth <- RequestAuth(email     = my.email,
+                             password  = my.password,
+                             verbose   = verbose)
   temp <- unlist(strsplit(result.auth, "Auth=", fixed = TRUE))[2]
   auth <- unlist(strsplit(temp, "\n"))[1]
   # in Windows, the file.auth will store in
@@ -39,9 +39,9 @@ PredictionApiUtilGetAuth <- function(verbose = FALSE) {
   return(auth)
 }
 
-PredictionApiUtilRequestAuth <- function(email,
-                                         password,
-                                         verbose = FALSE) {
+RequestAuth <- function(email,
+                        password,
+                        verbose = FALSE) {
   # Makes a request to ClientLogin to get auth-token
   #
   # Args:
@@ -49,31 +49,29 @@ PredictionApiUtilRequestAuth <- function(email,
   #   passwd: user's password for this email account
   # Returns:
   #   auth: string of auth-token
-
+  
   # prepare data to send to Google ClientLogin
-  data.tosend <-
-    sprintf(paste("accountType=HOSTED_OR_GOOGLE&",
-                  "Email=%s&",
-                  "source=R%%20client%%20library&",
-                  "service=predictionapi&",
-                  "Passwd=%s", sep=''),
-            email,
-            PredictionApiUtilUrlencode(password))
+  data.tosend <-sprintf(paste0("accountType=HOSTED_OR_GOOGLE&",
+                               "Email=%s&",
+                               "source=R%%20client%%20library&",
+                               "service=predictionapi&",
+                               "Passwd=%s"),
+                        email,
+                        EncodeUrl(password))
   if (verbose)
     cat("Data: ", data.tosend, "\n", sep='')
   # connect to ClientLogin and get result.auth
-  result.auth <- PredictionApiConnectHandler(connect.type = "auth",
-                                             bucket.name  = "",
-                                             object.name  = "",
-                                             data.tosend  = data.tosend,
-                                             verbose      = verbose)
+  result.auth <- ConnectionHandler(connect.type      = "auth",
+                                   unique.identifier = "",
+                                   data.tosend       = data.tosend,
+                                   verbose           = verbose)
   if (!result.auth$succeed.connect)
     stop("Connection to API failed, stop.\n")
-
+  
   return(result.auth$data)
 }
 
-PredictionApiUtilUrlencode <- function(url) {
+EncodeUrl <- function(url) {
   # Since the URLencode() in utils package won't encode some special characters
   # that are required to be encoded for inputing into Prediction API,
   # this modified function can encode those "special characters" and
