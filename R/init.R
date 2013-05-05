@@ -1,143 +1,32 @@
 # Copyright 2010 Google Inc. All Rights Reserved.
 # Author: markko@google.com (Markko Ko)
+# Modified for Google API v1.2 and extended by Maciej Janiec (mjaniec@gmail.com), 2011-05-30
+# Modified by w.victoryee@gmail.com (Victor Yee), 2013-05-04
 
-# Purpose:
-# 1. Import all required packages and functions
-# 2. Define user interface
-#
-# ---
-#
-# modified for Google API v1.2 and extended by Maciej Janiec (mjaniec@gmail.com), 2011-05-30
-
-
-# There are two places using this version number:
-# 1. DESCRIPTION file
-# 2. init.R
-kVersion <- '0.15'
-
-myEmail <- ""
-myPassword <- ""
-myAPIkey <- ""
-
-myVerbose <- FALSE
-myRetry <- TRUE
-
-GetPredictionSet <- function(bucket,object) {
-
-	paste('{"id" : "',bucket,'/',object,'"}',sep="")
-
-}
-
-HexSlash <- function(object) {
-
-	gsub("/","%2F",object)
-
-}
-
-PredictionApiTrain <- function(data,
+PredictionApiTrain <- function(unique.identifier,
                                remote.file,
-                               verbose = myVerbose,
-                               retry = myRetry,
-                               tillDone = FALSE) {
-  # Trains a model using data you provided through Google Prediction
-  # API. It accepts two types of data:
-  #
-  # 1. Local CSV files
-  #     User inputs a csv file name, this function performs uploading
-  #     and training to a model
-  #     required arguments: data="file.csv", remote.file
-  #     optional arguments: verbose
-  # 2. CSV files in the Google Storage
-  #     User inputs an object location in Google Storage, this function
-  #     performs training against the data in the Google Storage directly
-  #     required arguments: data="bucket.name/object.name"
-  #     optional arguments: local.file, verbose
-  # example: (not runnable, you need to provide bucket.name and object.name
-  #           from your Google Storage account)
-  #  # load data
-  #  data(wdbcData)
-  #  # Trains a model using data called wdbcData.
-  #  # The resp is the response.
-  #  # The bucket.name and object.name are the location of data you want to
-  #  # upload to Google Storage.
-  #  model <- PredictionApiTrain(remote.file="bucket.name/object.name")
-  #  # To make a simple summary report
-  #  summary(model)
-  #  # Next step is to use predict(model, newdata) to perform prediction on
-  #  # one instance(newdata).
-  #  # As an example, let's take the first row of wdbcData and remove
-  #  # the first column as newdata.
-  #  # wdbcData: the first column is the response label, and
-  #  #           the second to the end columns are data section
-  #  # To predict, we can use:
-  #  label <- predict(model,
-  #                   newdata=c(as.numeric(wdbcData[1, 2:ncol(wdbcData)])))
-  #  # Then it will return a predicted label string
-  #  # You can use the following function to perform batch prediction
-  #  pred <- PredictMulti(model=model,
-  #                       testdata=(wdbcData[38:74, 2:ncol(wdbcData)]))
-  # Args:
-  #   data: Accept two types: file, remote
-  #     e.g. "wdbcData.csv", "gs://bucket.name/wdbcData"
-  #   remote.file: the location of object to be trained in Google Storage
-  #     e.g. "bucket.name/wdbcData", or "gs://bucket.name/wdbcData"
-  #   verbose: If TRUE, print out all detail for debugging. Default is FALSE.
-  #		tillDone - repeat checking for training results till training is completed
-  # Returns:
-  #   model with class type: "PredictionApiModel"
-
-  # check input
-  data.type.format <- factor(c("remote", "file"))
-
-  # decide the type of input data:
-  # 1. file
-  # 2. remote
-  if (file.exists(data)) {
-    data.type <- "file"
-    local.file <- data
-  } else {
-    check.result <- PredictionApiTrainParseRemoteFile(data) # @ prediction_api.train_runner.R
-    if (!check.result$well.formed) {
-      stop(paste("The data should be: file, or remote file\n",
-                 " file:         should be an existing local file\n",
-                 " remote file:  string with format 'bucket.name/object.name' or
-                            'gs://bucket.name/object.name' \n"))
-    }
-    
-    data.type <- "remote"
-    remote.file <- data
-    if (nchar(remote.file) != 0 && remote.file != data)
-      cat("Ignore the argument: remote.file: ", remote.file, "\n")
-  }
-
+                               verbose = FALSE,
+                               check.until.done = FALSE,
+                               check.interval = 5) {
+  # Trains a model using data you provided through Google Prediction API
+  
+  # Check if remote file name is well-formed
   if (missing(remote.file) || !is.character(remote.file))
     stop("'remote.file' should be character")
-
-  # data.type == file
-  if (data.type == "file") {
-    # check input
-    if (missing(remote.file))
-      stop("Need to specify 'remote.file'\n")
+  check.result <- train.parse.remote.filename(remote.file)
+  if (!check.result$well.formed) {
+    stop("remote.file format error: should be string with format: ",
+         "\"bucket.name/object.name\" or \"gs://bucket.name/object.name\"\n")
   }
   
-  # check remote.file format
-  check.result <- PredictionApiTrainParseRemoteFile(remote.file) # @ prediction_api.train_runner.R
-  if (!check.result$well.formed)
-    stop("remote.file format error: should be string with format: ",
-        "\"bucket.name/object.name\" or \"gs://bucket.name/object.name\"\n")
-
-  # passed to TrainRunner @ prediction_api.train_runner.R
-  result <- PredictionApiTrainRunner(data.type = data.type,
-                                     data = data,
-                                     remote.file = remote.file,
-                                     local.file = local.file,
-                                     verbose = verbose,
-                                     retry = retry,
-                                     tillDone = tillDone)
+  # Passed to TrainRunner @ prediction_api.TrainRunner.R
+  result <- TrainRunner(unique.identifier = unique.identifier,
+                        remote.file       = remote.file,
+                        verbose           = verbose,
+                        check.until.done  = check.until.done,
+                        check.interval    = check.interval)
   return(result)
 }
-
-# TODO(niwang): add a print method for the model
 
 summary.PredictionApiModel <- function(object, ...) {
   # Output a summary report for model of type: 'predictionapiModel'.
