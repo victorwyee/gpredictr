@@ -54,52 +54,24 @@ predict.PredictionApiModel <- function(object,
                                        verbose = FALSE,
                                        ...) {
   # Predicts the label of newdata using model on Prediction API.
-  # example: not runnable, you need to provide bucket.name and object.name
-  #          from your Google Storage account
-  #   # load data
-  #   data(wdbcData)
-  #   # train a model using this data first
-  #   model <- PredictionApiTrain(remote.file="bucket.name/object.name")
-  #   # use this model and take the first row without label
-  #   # from data as newdata to predict
-  #   predict(model,newdata=c(as.numeric(wdbcData[1, 2:ncol(wdbcData)])))
-  #   # then it will return a label
-  #
-  # Args:
-  #   object: the model object returned from PredictionApiTrainRunner(),
-  #     it's class type must be "PredictionApiModel"
-  #   newdata: a data list to be predicted,
-  #     if the class type is character, I'll use "text"
-  #   verbose: If TRUE, print out all detail for debugging. Default is FALSE.
-  # Returns:
-  #   if succeed, return predicted label
-  #   else, return the error report including
-  #     1. result: "error"
-  #     2. error.code
-  #     3. error.message
-  #     4. error.information
-
+  
   # check input
   if (missing(object))
     stop("object should not be null")
   if (!is(object, "PredictionApiModel"))
     stop("object should be type: PredictionApiModel")
-  bucket.name <- object$bucket.name
-  object.name <- object$object.name
-  if (is.null(bucket.name) || !is.character(bucket.name))
-    stop("'bucket.name' must be character")
-  if (nchar(bucket.name) == 0)
-    stop("'bucket.name' should not be empty")
-  if (is.null(object.name) || !is.character(object.name))
-    stop("'object.name' must be character")
-  if (nchar(object.name) == 0)
-    stop("'object.name' should not be empty")
+  
+  unique.identifier <- object$unique.identifier
+  if (is.null(unique.identifier) || !is.character(unique.identifier))
+    stop("'unique.identifier' must be character")
+  if (nchar(unique.identifier) == 0)
+    stop("'unique.identifier' should not be empty")
   if (missing(newdata) || nchar(newdata) == 0)
     stop("'newdata' should not be empty")
-
-  result <- PredictionApiPredictRunner(model    = object,
-                                       verbose  = verbose,
-                                       newdata  = newdata)
+  
+  result <- PredictRunner(unique.identifier = unique.identifier,
+                          verbose           = verbose,
+                          newdata           = newdata)
   return(result)
 }
 
