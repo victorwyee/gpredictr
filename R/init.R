@@ -75,17 +75,9 @@ predict.PredictionApiModel <- function(object,
   return(result)
 }
 
-PredictionApiCheckTrainingStatus <- function(bucket.name,
-                                             object.name,
+PredictionApiCheckTrainingStatus <- function(unique.identifier,
                                              verbose = FALSE) {
   # Checks if the training of the given object is completed
-  # example:
-  #    # to check if the training of gs://bucket.name/object.name is finished
-  #    PredictionApiCheckTrainingStatus("bucket.name", "object.name")
-  # Args:
-  #   bucket.name: bucket.name of data location in Google Storage
-  #   object.name: object.name of data location in Google Storage
-  #   verbose: If TRUE, print out all detail for debugging. Default is FALSE.
   # Returns:
   #   if error, return the error report including
   #     1. result: "error"
@@ -99,20 +91,19 @@ PredictionApiCheckTrainingStatus <- function(bucket.name,
   #     2. cv.accuracy: accuracy
   #     3. bucket.name
   #     4. object.name
-
+  
   # check input
-  if (missing(bucket.name) || !is.character(bucket.name))
+  if (missing(unique.identifier) || !is.character(unique.identifier))
     stop("'bucket.name' must be character")
-  if (nchar(bucket.name) <= 1)
+  if (nchar(unique.identifier) <= 1)
     stop("'bucket.name' should not empty")
-  if (missing(object.name) || !is.character(object.name))
+  if (missing(unique.identifier) || !is.character(unique.identifier))
     stop("'object.name' must be character")
-  if (nchar(object.name) <= 1)
+  if (nchar(unique.identifier) <= 1)
     stop("'object.name' should not empty")
-
-  result <- PredictionApiCheckTrain(bucket.name = bucket.name,
-                                    object.name = HexSlash(object.name),
-                                    verbose = verbose)
+  
+  result <- CheckTrain(unique.identifier,
+                       verbose = verbose)
   return(result)
 }
 
