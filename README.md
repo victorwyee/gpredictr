@@ -17,7 +17,7 @@ PredictionApiTrain) are not currently available.
  3. That you upload your training dataset to your Google Cloud Storage account
 
 ## Usage
-```{s}
+```{r}
 ### Load libraries -------------------------------------------------------------
 library(rjson)
 library(RCurl)
