@@ -14,7 +14,7 @@ ResultHandler <- function(result.data,
   flag.check <- "RUNNING"
   
   # Check input
-  mode.type <- c("insert", "predict", "get", "list")
+  mode.type <- c("insert", "predict", "get", "list", "delete")
   mode <- match.arg(mode, mode.type)
   
   if (missing(result.data) || length(result.data) == 0)
@@ -155,6 +155,14 @@ ResultHandler <- function(result.data,
     #     { ... }
     # }
     
+    if (!result.data$succeed.connect) {
+      # If error, output the error code and reason
+      return(list(status = "ERROR",
+                  error.code = result.data$error$code,
+                  error.message = result.data$error$message,
+                  error.information = result.data$error$errors))
+    }
+    
     result.conv      <- JsonToData(result.data$data)
     number.of.items  <- length(result.conv$items)
     output           <- matrix(nrow = number.of.items, ncol = 5)
@@ -177,6 +185,21 @@ ResultHandler <- function(result.data,
     }
     
     return(output)
+  }
+  
+  if (mode == "delete") {
+    # If delete is successful, a 204 status and empty message body is returned
+    
+    if (!result.data$succeed.connect) {
+      # If error, output the error code and reason
+      error.data <- JsonToData(result.data$data)
+      return(list(status = "ERROR",
+                  error.code = result.data$status,
+                  error.message = result.data$status.message,
+                  error.information = error.data$error$message))
+    } else {
+      return(list(status = "SUCCESS"))
+    }
   }
   
   stop("mode = '", mode, "' was not one of the recognized options")

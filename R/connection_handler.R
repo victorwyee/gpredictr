@@ -13,9 +13,9 @@ ConnectionHandler <- function(connect.type,
     auth <- GetAuthToken(verbose = verbose)
   
   # Check input
-  connect.type.all = c("insert", "get", "predict", "list", "auth")
+  connect.type.all = c("insert", "get", "predict", "list", "delete", "auth")
   if (!is.element(connect.type, connect.type.all))
-    stop("Connect.type must be either insert, get, list, predict, or auth")
+    stop("Connect.type must be either insert, get, predict, list, delete or auth")
   if (is.element(connect.type, c("insert", "predict")) && missing(data.tosend))
     stop("Must have 'data.tosend'")
   
@@ -40,7 +40,9 @@ ConnectionHandler <- function(connect.type,
     header.field <- header.field.json
   } else if (connect.type == "list") {
     url          <- paste0(prediction.api.url, "/list?key=", my.api.key)
-    user.agent   <- user.agent.string
+    header.field <- header.field.get
+  } else if (connect.type == "delete") {
+    url          <- paste0(prediction.api.url, "/", unique.identifier, "?key=", my.api.key)
     header.field <- header.field.get
   } else if (connect.type == "auth") {
     url          <- "https://www.google.com/accounts/ClientLogin"
@@ -61,11 +63,13 @@ ConnectionHandler <- function(connect.type,
   
   # Connect to API
   if (verbose) {
-    cat("Request to be send:\n")
-    cat("TYPE=", connect.type, "\n")
-    cat("URL=" , url         , "\n")
-    cat("POST=", data.tosend , "\n")
-    cat("HEAD=", header.field, "\n")    
+    cat("Request to be sent\n")
+    cat("TYPE : ", connect.type, "\n")
+    cat("URL  : " , url         , "\n")
+    if (is.element(connect.type, c("insert", "predict", "auth"))) {
+      cat("POST : ", data.tosend , "\n")    
+    }
+    cat("HEAD : ", header.field, "\n")    
   }
   
   retry <- 0
@@ -80,6 +84,11 @@ ConnectionHandler <- function(connect.type,
                           curl           = curl,
                           writefunction  = t$update,
                           headerfunction = h$update)
+    } else if (connect.type == "delete") {
+      body <- httpDELETE (url            = url,
+                          curl           = curl,
+                          writefunction  = t$update,
+                          headerfunction = h$update) 
     } else {
       body <- curlPerform(url            = url,
                           curl           = curl,
@@ -103,7 +112,13 @@ ConnectionHandler <- function(connect.type,
     
     # Check http status
     httpstatus <- as.numeric(output$status)
-    if (httpstatus != 200) { output$succeed.connect <- FALSE }
+    if (connect.type == "delete" && httpstatus == 204) {
+      output$succeed.connect <- TRUE
+    } else if (httpstatus == 200) {
+      output$succeed.connect <- TRUE
+    } else {
+      output$succeed.connect <- FALSE
+    }
     if (output$succeed.connect) { break }
     
     retry.sleep.time.in.seconds <- 0.5

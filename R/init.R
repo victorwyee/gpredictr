@@ -113,3 +113,12 @@ PredictionApiListModels <- function(verbose = FALSE) {
   result <- ResultHandler(result.conn, mode = "list")
   return(result)
 }
+
+PredictionApiRemoveModel <- function(unique.identifier,
+                                     verbose = FALSE) {
+  result.conn <- ConnectionHandler(unique.identifier = unique.identifier,
+                                   connect.type = "delete",
+                                   verbose     = verbose)
+  result <- ResultHandler(result.conn, mode = "delete")
+  return(result)
+}

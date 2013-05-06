@@ -17,7 +17,7 @@ PredictionApiTrain) are not currently available.
  3. That you upload your training dataset to your Google Cloud Storage account
 
 ## Usage
-```{s}
+```{r}
 ### Load libraries -------------------------------------------------------------
 library(rjson)
 library(RCurl)
@@ -107,7 +107,25 @@ predict(object = language.id.model, newdata = "le français")
 PredictionApiListModels()
 #      id                   trainingStatus numberInstances numberLabels accuracy
 # [1,] "languageIdentifier" "DONE"         "406"           "3"          "0.98"  
-# [2,] "test-data"          "RUNNING"      NA              NA           NA  
+# [2,] "test-data"          "RUNNING"      NA              NA           NA
+
+### Removes a previously trained model
+PredictionApiRemoveModel(unique.identifier = "languageIdentifier")
+### If the model is successfully deleted:
+# $status
+# [1] "SUCCESS"
+### If the model has already been deleted, or is not found:
+# $status
+# [1] "ERROR"
+# 
+# $error.code
+# [1] "404"
+# 
+# $error.message
+# [1] "Not Found"
+# 
+# $error.information
+# [1] "No Model found. Model must first be trained."
 
 ### Lower-level functions (not run) --------------------------------------------
 train.runner <- function(unique.identifier = "languageIdentifier",
